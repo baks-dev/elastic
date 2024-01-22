@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,26 +23,66 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Elastic\Controller;
+namespace BaksDev\Elastic\Api;
 
-use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Annotation\Route;
-
-#[AsController]
-#[RoleSecurity('ROLE_ADMIN')]
-final class IndexController extends AbstractController
+final class ElasticIndex extends ElasticClient
 {
-    #[Route('/admin/elastic/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
-    public function index(
-        Request $request,
-        int $page = 0
-    ): Response
-    {
 
-        return new Response('OK');
+    public function schema(string $name)
+    {
+        $schema = '{
+  "mappings" : {
+     "properties" : {
+     
+        "id": {
+          "type": "keyword",
+          "index": false
+        }
+     
+         "title" : {
+             "type" : "keyword"
+         },
+         
+         "count" : {
+             "type" : "integer"
+         },
+         
+         "content" : {
+            "type" : "text"
+         }
+      }
+   }
+}';
+
+
     }
+
+
+    public function get(string $name)
+    {
+        // TODO: Implement __get() method.
+    }
+
+    public function set(string $key, array|string $value): bool
+    {
+        if(is_array($value))
+        {
+            $value = json_encode($value, JSON_THROW_ON_ERROR);
+        }
+
+        if(PHP_VERSION >= 8.3 && !json_validate($value))
+        {
+            return false;
+        }
+
+        $this->request('PUT', $key, $value);
+
+    }
+
+
+    public function delete(string $name): void
+    {
+        // TODO: Implement __set() method.
+    }
+
 }

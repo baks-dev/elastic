@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,26 +23,37 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Elastic\Controller;
+namespace BaksDev\Elastic\Api\Index;
 
-use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Annotation\Route;
+use BaksDev\Elastic\Api\ElasticClient;
+use Doctrine\ORM\Mapping\Table;
+use ReflectionAttribute;
+use ReflectionClass;
 
-#[AsController]
-#[RoleSecurity('ROLE_ADMIN')]
-final class IndexController extends AbstractController
+final class ElasticDeleteIndex extends ElasticClient
 {
-    #[Route('/admin/elastic/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
-    public function index(
-        Request $request,
-        int $page = 0
-    ): Response
+    public function handle(string $index): bool
     {
+        /**  Если передан класс сущности - определяем её таблицу */
+        if(class_exists($index))
+        {
+            $ref = new ReflectionClass($index);
+            /** @var ReflectionAttribute $current */
+            $current = current($ref->getAttributes(Table::class));
+            $index = $current->getArguments()['name'] ?? $index;
+        }
 
-        return new Response('OK');
+        $request = $this->request('DELETE', '/'.$index);
+
+        $response = $request->toArray(false);
+
+        if($request->getStatusCode() !== 200)
+        {
+            $this->logger->critical(__FILE__.':'.__LINE__, $response);
+            return false;
+        }
+
+        $this->logger->info(__FILE__.':'.__LINE__, $response);
+        return true;
     }
 }

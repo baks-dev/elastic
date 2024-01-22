@@ -23,26 +23,32 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Elastic\Controller;
+namespace BaksDev\Elastic\Api\Index\Tests;
 
-use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Annotation\Route;
+use BaksDev\Elastic\Api\Index\ElasticSetIndex;
+use BaksDev\Elastic\Api\Mappings\ElasticSetMap;
+use BaksDev\Elastic\Api\Properties\IntegerElasticType;
+use BaksDev\Elastic\Api\Properties\KeywordElasticType;
+use BaksDev\Elastic\Api\Properties\TextElasticType;
+use BaksDev\Wildberries\Api\Token\Card\WildberriesCards\WildberriesCards;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-#[AsController]
-#[RoleSecurity('ROLE_ADMIN')]
-final class IndexController extends AbstractController
+/**
+ * @group elastic
+ * @group elastic-set-index
+ */
+#[When(env: 'test')]
+final class ElasticSetIndexTest extends KernelTestCase
 {
-    #[Route('/admin/elastic/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
-    public function index(
-        Request $request,
-        int $page = 0
-    ): Response
+    public function testUseCase(): void
     {
+        /** @var ElasticSetIndex $ElasticSetIndex */
+        //$ElasticSetIndex = self::getContainer()->get(ElasticSetIndex::class);
 
-        return new Response('OK');
+        //$ElasticSetIndex->handle('test_index', []);
+
+        self::assertTrue(true);
+
     }
 }

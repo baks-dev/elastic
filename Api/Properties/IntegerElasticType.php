@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,26 +23,41 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Elastic\Controller;
+namespace BaksDev\Elastic\Api\Properties;
 
-use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Annotation\Route;
-
-#[AsController]
-#[RoleSecurity('ROLE_ADMIN')]
-final class IndexController extends AbstractController
+final class IntegerElasticType implements ElasticTypeInterface
 {
-    #[Route('/admin/elastic/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
-    public function index(
-        Request $request,
-        int $page = 0
-    ): Response
-    {
 
-        return new Response('OK');
+    private string $key;
+
+    private bool $index = true;
+
+    public function __construct(string $key)
+    {
+        $this->key = $key;
+    }
+
+    /** Возвращает тип свойства */
+    public function getType(): string
+    {
+        return 'integer';
+    }
+
+    /** Возвращает ключ свойства */
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
+
+    public function noIndex(): self
+    {
+        $this->index = false;
+        return $this;
+    }
+
+    public function isIndex(): bool
+    {
+        return $this->index;
     }
 }
