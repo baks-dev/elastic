@@ -33,11 +33,16 @@ return static function(FrameworkConfig $framework) {
     $messenger->transport('elastic')
         ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
         ->options(['queue_name' => 'elastic'])
+        ->failureTransport('failed-elastic')
         ->retryStrategy()
         ->maxRetries(3)
         ->delay(1000)
         ->maxDelay(0)
         ->multiplier(3) // увеличиваем задержку перед каждой повторной попыткой
-        ->service(null);
+        ->service(null)
 
+    ;
+
+    $messenger->transport('failed-elastic')
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%');
 };
