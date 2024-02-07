@@ -35,6 +35,7 @@ use Doctrine\ORM\Mapping\Table;
 use InvalidArgumentException;
 use ReflectionAttribute;
 use ReflectionClass;
+use Symfony\Component\HttpClient\Exception\TransportException;
 
 final class ElasticSetMap extends ElasticClient
 {
@@ -109,7 +110,14 @@ final class ElasticSetMap extends ElasticClient
 
         if($request)
         {
-            $response = $request->toArray(false);
+            try
+            {
+                $response = $request->toArray(false);
+            }
+            catch(TransportException)
+            {
+                return false;
+            }
 
             if($request->getStatusCode() !== 200)
             {
@@ -147,12 +155,20 @@ final class ElasticSetMap extends ElasticClient
     {
         $request = $this->request('GET', '/'.$this->index.'/_mapping');
 
+        try
+        {
+            $response = $request->toArray(false);
+        }
+        catch(TransportException $exception)
+        {
+            return false;
+        }
+
         if($request->getStatusCode() !== 200)
         {
             return false;
         }
 
-        $response = $request->toArray(false);
 
         return $response[$this->index]['mappings']['properties'];
     }

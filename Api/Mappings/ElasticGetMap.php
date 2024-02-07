@@ -26,14 +26,25 @@ declare(strict_types=1);
 namespace BaksDev\Elastic\Api\Mappings;
 
 use BaksDev\Elastic\Api\ElasticClient;
+use Symfony\Component\HttpClient\Exception\TransportException;
 
 final class ElasticGetMap extends ElasticClient
 {
     public function handle(string $index): bool|array
     {
+
         $request = $this->request('GET', '/'.$index.'/_mapping');
 
-        $response = $request->toArray(false);
+        try
+        {
+
+            $response = $request->toArray(false);
+
+        }
+        catch(TransportException $exception)
+        {
+            return false;
+        }
 
         if($request->getStatusCode() !== 200)
         {

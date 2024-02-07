@@ -50,7 +50,6 @@ final class ElasticGetMapTest extends KernelTestCase
 
         $result = $ElasticGetMap->handle('test_index');
 
-
         if($result)
         {
             self::assertTrue(isset($result['counter']));

@@ -29,6 +29,7 @@ use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
 use ReflectionAttribute;
 use ReflectionClass;
+use Symfony\Component\HttpClient\Exception\TransportException;
 
 final class ElasticGetIndex extends ElasticClient
 {
@@ -51,11 +52,11 @@ final class ElasticGetIndex extends ElasticClient
         }
 
 
-
         $searchData["query"]["match"]['text']['query'] = $search;
         $searchData["query"]["match"]['text']["operator"] = "and";
 
-        $searchData["query"]["match"]['text']["fuzziness"] = match ($definition) {
+        $searchData["query"]["match"]['text']["fuzziness"] = match ($definition)
+        {
             1 => 1,
             2 => 2,
             default => 0,
@@ -68,15 +69,21 @@ final class ElasticGetIndex extends ElasticClient
             ['json' => $searchData]
         );
 
-        $response = $request->toArray(false);
-
-        //dump($response);
+        try
+        {
+            $response = $request->toArray(false);
+        }
+        catch(TransportException)
+        {
+            return false;
+        }
 
         if($request->getStatusCode() !== 200)
         {
-            $this->logger->critical(__FILE__.':'.__LINE__, $response);
+            $this->logger->critical(__FILE__.':'.__LINE__);
             return false;
         }
+
 
         $this->logger->info(__FILE__.':'.__LINE__, $response);
 
