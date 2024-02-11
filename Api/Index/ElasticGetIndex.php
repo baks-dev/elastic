@@ -29,6 +29,7 @@ use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
 use ReflectionAttribute;
 use ReflectionClass;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\TransportException;
 
 final class ElasticGetIndex extends ElasticClient
@@ -80,7 +81,16 @@ final class ElasticGetIndex extends ElasticClient
 
         if($request->getStatusCode() !== 200)
         {
-            $this->logger->critical(__FILE__.':'.__LINE__);
+            try
+            {
+                $content = $request->getContent();
+                $this->logger->critical(sprintf('Status %s', $request->getStatusCode()), [__FILE__.':'.__LINE__]);
+            }
+            catch(ClientException $clientException)
+            {
+                $this->logger->critical($clientException->getMessage(), [__FILE__.':'.__LINE__]);
+            }
+
             return false;
         }
 
