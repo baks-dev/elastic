@@ -25,9 +25,11 @@ use BaksDev\Elastic\Api\Properties\KeywordElasticType;
 use BaksDev\Elastic\Api\Properties\TextElasticType;
 use BaksDev\Elastic\Index\ElasticIndexInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -63,20 +65,33 @@ class ElasticIndexCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-
         $progressBar = new ProgressBar($output);
-        $progressBar->start();
+
+
+        $isStart = false;
 
         /** @var ElasticIndexInterface $index */
         foreach($this->elasticIndex as $index)
         {
-
             if(empty($index->getIndex()) || empty($index->getData()))
             {
                 continue;
             }
 
-            $this->elasticDeleteIndex->handle($index->getIndex());
+            try
+            {
+                $this->elasticDeleteIndex->handle($index->getIndex());
+
+            } catch(Exception $exception)
+            {
+                $io->error($exception->getMessage());
+                return Command::FAILURE;
+            }
+
+            if($isStart === false)
+            {
+                $progressBar->start();
+            }
 
             /** Создаем схему индекса */
             $id = new KeywordElasticType('id');
