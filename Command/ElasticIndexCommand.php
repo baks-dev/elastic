@@ -12,24 +12,16 @@
 namespace BaksDev\Elastic\Command;
 
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Elastic\Api\ElasticInfo;
-use BaksDev\Elastic\Api\Index\ElasticDeleteByQueryIndex;
 use BaksDev\Elastic\Api\Index\ElasticDeleteIndex;
-use BaksDev\Elastic\Api\Index\ElasticGetIndex;
 use BaksDev\Elastic\Api\Index\ElasticSetIndex;
-use BaksDev\Elastic\Api\Mappings\ElasticGetMap;
 use BaksDev\Elastic\Api\Mappings\ElasticSetMap;
-use BaksDev\Elastic\Api\Properties\IntegerElasticType;
 use BaksDev\Elastic\Api\Properties\KeywordElasticType;
 use BaksDev\Elastic\Api\Properties\TextElasticType;
 use BaksDev\Elastic\Index\ElasticIndexInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -82,7 +74,8 @@ class ElasticIndexCommand extends Command
             {
                 $this->elasticDeleteIndex->handle($index->getIndex());
 
-            } catch(Exception $exception)
+            }
+            catch(Exception $exception)
             {
                 $io->error($exception->getMessage());
                 return Command::FAILURE;
@@ -125,7 +118,7 @@ class ElasticIndexCommand extends Command
             $filter = implode(' ', $filter);
         }
 
-        $filter = str_replace( ['%PRODUCT_NAME%', '%PRODUCT_OFFER%', '%PRODUCT_VARIATION%', '%PRODUCT_MOD%'], '', $filter);
+        $filter = str_replace(['%PRODUCT_NAME%', '%PRODUCT_OFFER%', '%PRODUCT_VARIATION%', '%PRODUCT_MOD%'], '', $filter);
 
         $filter = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $filter);
         $filter = explode(' ', $filter);
