@@ -61,8 +61,8 @@ final class ProductUpdateIndex
 
         if(!$isRunning)
         {
-            $process = new Process(['php', $this->project_dir.'/bin/console', 'baks:elastic:index']);
-            $process->start();
+            $elasticProcess = Process::fromShellCommandline('php '.$this->project_dir.'/bin/console baks:elastic:index');
+            $elasticProcess->start();
         }
     }
 }
