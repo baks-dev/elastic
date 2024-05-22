@@ -59,7 +59,6 @@ class ElasticIndexCommand extends Command
 
         $progressBar = new ProgressBar($output);
 
-
         $isStart = false;
 
         /** @var ElasticIndexInterface $index */

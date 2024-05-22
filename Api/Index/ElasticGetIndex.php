@@ -65,19 +65,20 @@ final class ElasticGetIndex extends ElasticClient
 
         $searchData["size"] = 5;
 
-        $request = $this->request('GET',
-            '/'.$index.'/_search',
-            ['json' => $searchData]
-        );
-
         try
         {
-            $response = $request->toArray(false);
+            $request = $this->request('GET',
+                '/'.$index.'/_search',
+                ['json' => $searchData]
+            );
         }
         catch(TransportException)
         {
             return false;
         }
+
+        $response = $request->toArray(false);
+
 
         if($request->getStatusCode() !== 200)
         {
