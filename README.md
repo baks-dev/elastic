@@ -23,4 +23,3 @@ $ php bin/phpunit --group=elastic
 
 The MIT License (MIT). Обратитесь к [Файлу лицензии](LICENSE.md) за дополнительной информацией.
 
-
