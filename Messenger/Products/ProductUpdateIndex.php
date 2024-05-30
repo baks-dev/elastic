@@ -25,20 +25,19 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Messenger\Products;
 
-use BaksDev\Elastic\BaksDevElasticBundle;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Elastic\Messenger\ElasticReindex\ElasticReindexMessage;
 use BaksDev\Products\Product\Messenger\ProductMessage;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Process\Process;
 
 #[AsMessageHandler]
 final class ProductUpdateIndex
 {
-    private string $project_dir;
+    private MessageDispatchInterface $messageDispatch;
 
-    public function __construct(#[Autowire('%kernel.project_dir%')] string $project_dir,)
+    public function __construct(MessageDispatchInterface $messageDispatch)
     {
-        $this->project_dir = $project_dir;
+        $this->messageDispatch = $messageDispatch;
     }
 
     /**
@@ -46,23 +45,6 @@ final class ProductUpdateIndex
      */
     public function __invoke(ProductMessage $message): void
     {
-        if(!class_exists(BaksDevElasticBundle::class))
-        {
-            return;
-        }
-
-        $process = Process::fromShellCommandline('ps aux | grep php | grep baks:elastic:index');
-
-        $process->setTimeout(1);
-        $process->run();
-
-        $result = $process->getIterator($process::ITER_SKIP_ERR | $process::ITER_KEEP_OUTPUT)->current();
-        $isRunning = (!empty($result) && strripos($result, 'console baks:elastic:index'));
-
-        if(!$isRunning)
-        {
-            $elasticProcess = Process::fromShellCommandline('sudo -u unit php '.$this->project_dir.'/bin/console baks:elastic:index');
-            $elasticProcess->start();
-        }
+        $this->messageDispatch->dispatch(new ElasticReindexMessage(), transport: 'async');
     }
 }

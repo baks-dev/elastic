@@ -33,9 +33,6 @@ use BaksDev\Elastic\Api\Properties\TextElasticType;
 use BaksDev\Elastic\Index\ElasticIndexInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -63,10 +60,8 @@ final class ElasticReindexHandler
         $this->logger = $elasticLogger;
     }
 
-
     public function __invoke(ElasticReindexMessage $message): void
     {
-
         /** @var ElasticIndexInterface $index */
         foreach($this->elasticIndex as $index)
         {
@@ -75,34 +70,45 @@ final class ElasticReindexHandler
                 continue;
             }
 
-            try
+            if($this->clear($index))
             {
-                $this->elasticDeleteIndex->handle($index->getIndex());
+                /** Создаем схему индекса */
+                $id = new KeywordElasticType('id');
+                $text = new TextElasticType('text');
 
-            }
-            catch(Exception $exception)
-            {
-                $this->logger->critical($exception->getMessage());
-                return;
+                $this
+                    ->elasticSetMap
+                    ->addProperty($id)
+                    ->addProperty($text)
+                    ->handle($index->getIndex());
 
-            }
-
-
-            /** Создаем схему индекса */
-            $id = new KeywordElasticType('id');
-            $text = new TextElasticType('text');
-
-            $this
-                ->elasticSetMap
-                ->addProperty($id)
-                ->addProperty($text)
-                ->handle($index->getIndex());
-
-            foreach($index->getData() as $id => $text)
-            {
-                $this->elasticSetIndex->handle($index->getIndex(), ['id' => $id, 'text' => $this->filterText($text)]);
+                foreach($index->getData() as $id => $text)
+                {
+                    $this->elasticSetIndex->handle($index->getIndex(),
+                        [
+                            'id' => $id,
+                            'text' => $this->filterText($text)
+                        ]);
+                }
             }
         }
+    }
+
+
+    public function clear(ElasticIndexInterface $index): bool
+    {
+        try
+        {
+            $this->elasticDeleteIndex->handle($index->getIndex());
+
+        }
+        catch(Exception $exception)
+        {
+            $this->logger->critical($exception->getMessage());
+            return false;
+        }
+
+        return true;
     }
 
 
