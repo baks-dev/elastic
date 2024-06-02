@@ -25,12 +25,14 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Messenger\ElasticReindex;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Elastic\Api\Index\ElasticDeleteIndex;
 use BaksDev\Elastic\Api\Index\ElasticSetIndex;
 use BaksDev\Elastic\Api\Mappings\ElasticSetMap;
 use BaksDev\Elastic\Api\Properties\KeywordElasticType;
 use BaksDev\Elastic\Api\Properties\TextElasticType;
 use BaksDev\Elastic\Index\ElasticIndexInterface;
+use DateInterval;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
@@ -44,12 +46,14 @@ final class ElasticReindexHandler
     private ElasticSetIndex $elasticSetIndex;
     private ElasticDeleteIndex $elasticDeleteIndex;
     private LoggerInterface $logger;
+    private AppCacheInterface $cache;
 
     public function __construct(
         LoggerInterface $elasticLogger,
         ElasticSetMap $elasticSetMap,
         ElasticSetIndex $elasticSetIndex,
         ElasticDeleteIndex $elasticDeleteIndex,
+        AppCacheInterface $cache,
         #[TaggedIterator('baks.elastic.index')] iterable $elasticIndex
     )
     {
@@ -58,10 +62,27 @@ final class ElasticReindexHandler
         $this->elasticSetIndex = $elasticSetIndex;
         $this->elasticDeleteIndex = $elasticDeleteIndex;
         $this->logger = $elasticLogger;
+        $this->cache = $cache;
     }
 
     public function __invoke(ElasticReindexMessage $message): void
     {
+
+        /** Переиндексация возможна каждые 5 минут  */
+        $cache = $this->cache->init('elastic');
+        $item = $cache->getItem('reindex');
+
+        if($item->isHit())
+        {
+            return;
+        }
+
+        $item->set(true);
+        $item->expiresAfter(DateInterval::createFromDateString('5 minutes'));
+        $cache->save($item);
+
+
+        /** Запускаем переиндексацию */
         /** @var ElasticIndexInterface $index */
         foreach($this->elasticIndex as $index)
         {
@@ -92,9 +113,13 @@ final class ElasticReindexHandler
                 }
             }
         }
+
+        $cache->deleteItem($item);
     }
 
-
+    /**
+     * Метод удаляет все ключи из таблицы индексов
+     */
     public function clear(ElasticIndexInterface $index): bool
     {
         try
@@ -112,6 +137,9 @@ final class ElasticReindexHandler
     }
 
 
+    /**
+     * Метод фильтрует текст поиска, и составляет ключи
+     */
     public function filterText(string|array $filter): string
     {
         if(is_array($filter))
