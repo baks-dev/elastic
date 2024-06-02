@@ -67,8 +67,9 @@ final class ElasticReindexHandler
 
     public function __invoke(ElasticReindexMessage $message): void
     {
-
-        /** Переиндексация возможна каждые 5 минут  */
+        /**
+         * Делаем проверку, нет ли запущенных процессов переиндексации
+         */
         $cache = $this->cache->init('elastic');
         $item = $cache->getItem('reindex');
 

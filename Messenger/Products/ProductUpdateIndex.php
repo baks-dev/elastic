@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Messenger\Products;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Elastic\Messenger\ElasticReindex\ElasticReindexMessage;
 use BaksDev\Products\Product\Messenger\ProductMessage;
@@ -34,10 +35,15 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class ProductUpdateIndex
 {
     private MessageDispatchInterface $messageDispatch;
+    private AppCacheInterface $cache;
 
-    public function __construct(MessageDispatchInterface $messageDispatch)
+    public function __construct(
+        AppCacheInterface $cache,
+        MessageDispatchInterface $messageDispatch
+    )
     {
         $this->messageDispatch = $messageDispatch;
+        $this->cache = $cache;
     }
 
     /**
@@ -45,6 +51,17 @@ final class ProductUpdateIndex
      */
     public function __invoke(ProductMessage $message): void
     {
+        /**
+         * Делаем проверку, нет ли запущенных процессов переиндексации
+         */
+        $cache = $this->cache->init('elastic');
+        $item = $cache->getItem('reindex');
+
+        if($item->isHit())
+        {
+            return;
+        }
+
         $this->messageDispatch->dispatch(new ElasticReindexMessage(), transport: 'async');
     }
 }
