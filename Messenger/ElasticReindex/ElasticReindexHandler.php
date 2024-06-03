@@ -115,7 +115,7 @@ final class ElasticReindexHandler
             }
         }
 
-        $cache->deleteItem($item);
+        $cache->deleteItem('reindex');
     }
 
     /**
