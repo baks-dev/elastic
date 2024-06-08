@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,8 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Elastic\BaksDevElasticBundle;
+
 return static function(ContainerConfigurator $configurator) {
 
     $services = $configurator->services()
@@ -30,15 +32,14 @@ return static function(ContainerConfigurator $configurator) {
         ->autowire()
         ->autoconfigure();
 
-    $NAMESPACE = 'BaksDev\Elastic\\';
+    $NAMESPACE = BaksDevElasticBundle::NAMESPACE;
+    $PATH = BaksDevElasticBundle::PATH;
 
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
-
-    $services->load($NAMESPACE, $MODULE)
+    $services->load($NAMESPACE, $PATH)
         ->exclude([
-            $MODULE.'{Entity,Resources,Type}',
-            $MODULE.'**/*Message.php',
-            $MODULE.'**/*DTO.php',
+            $PATH.'{Entity,Resources,Type}',
+            $PATH.'**/*Message.php',
+            $PATH.'**/*DTO.php',
         ])
     ;
 
