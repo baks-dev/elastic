@@ -1,6 +1,6 @@
 # BaksDev Elastic
 
-[![Version](https://img.shields.io/badge/version-7.1.1-blue)](https://github.com/baks-dev/elastic/releases)
+[![Version](https://img.shields.io/badge/version-7.1.2-blue)](https://github.com/baks-dev/elastic/releases)
 ![php 8.3+](https://img.shields.io/badge/php-min%208.3-red.svg)
 
 Модуль Elastic
@@ -13,7 +13,13 @@ $ composer require baks-dev/elastic
 
 ## Дополнительно
 
-Тесты
+Установка конфигурации и файловых ресурсов:
+
+``` bash
+$ php bin/console baks:assets:install
+```
+
+## Тестирование
 
 ``` bash
 $ php bin/phpunit --group=elastic
