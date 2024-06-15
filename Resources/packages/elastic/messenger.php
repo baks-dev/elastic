@@ -31,8 +31,8 @@ return static function(FrameworkConfig $framework) {
     $messenger = $framework->messenger();
 
     $messenger->transport('elastic')
-        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'elastic'])
+        ->dsn('redis://%env(REDIS_PASSWORD)%@%env(REDIS_HOST)%:%env(REDIS_PORT)%?auto_setup=true')
+        ->options(['stream' => 'elastic'])
         ->failureTransport('failed-elastic')
         ->retryStrategy()
         ->maxRetries(3)
@@ -43,7 +43,9 @@ return static function(FrameworkConfig $framework) {
 
     ;
 
-    $messenger->transport('failed-elastic')
+    $failure = $framework->messenger();
+
+    $failure->transport('failed-elastic')
         ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
         ->options(['queue_name' => 'failed-elastic'])
     ;
