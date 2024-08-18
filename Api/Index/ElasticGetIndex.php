@@ -85,18 +85,18 @@ final class ElasticGetIndex extends ElasticClient
             try
             {
                 $content = $request->getContent();
-                $this->logger->critical(sprintf('Status %s', $request->getStatusCode()), [__FILE__.':'.__LINE__]);
+                $this->logger->critical(sprintf('Status %s', $request->getStatusCode()), [self::class.':'.__LINE__]);
             }
             catch(ClientException $clientException)
             {
-                $this->logger->critical($clientException->getMessage(), [__FILE__.':'.__LINE__]);
+                $this->logger->critical($clientException->getMessage(), [self::class.':'.__LINE__]);
             }
 
             return false;
         }
 
 
-        $this->logger->info(__FILE__.':'.__LINE__, $response);
+        $this->logger->info(self::class.':'.__LINE__, $response);
 
         return $response;
 

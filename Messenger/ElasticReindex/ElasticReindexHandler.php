@@ -35,7 +35,7 @@ use BaksDev\Elastic\Index\ElasticIndexInterface;
 use DateInterval;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -54,7 +54,7 @@ final class ElasticReindexHandler
         ElasticSetIndex $elasticSetIndex,
         ElasticDeleteIndex $elasticDeleteIndex,
         AppCacheInterface $cache,
-        #[TaggedIterator('baks.elastic.index')] iterable $elasticIndex
+        #[AutowireIterator('baks.elastic.index')] iterable $elasticIndex
     )
     {
         $this->elasticIndex = $elasticIndex;

@@ -48,11 +48,11 @@ final class ElasticGetMap extends ElasticClient
 
         if($request->getStatusCode() !== 200)
         {
-            $this->logger->critical(__FILE__.':'.__LINE__, $response);
+            $this->logger->critical(self::class.':'.__LINE__, $response);
             return false;
         }
 
-        $this->logger->info(__FILE__.':'.__LINE__, $response);
+        $this->logger->info(self::class.':'.__LINE__, $response);
 
         return $response[$index]['mappings']['properties'];
     }

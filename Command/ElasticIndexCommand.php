@@ -25,7 +25,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 #[AsCommand(
     name: 'baks:elastic:index',
@@ -42,7 +42,7 @@ class ElasticIndexCommand extends Command
         ElasticSetMap $elasticSetMap,
         ElasticSetIndex $elasticSetIndex,
         ElasticDeleteIndex $elasticDeleteIndex,
-        #[TaggedIterator('baks.elastic.index')] iterable $elasticIndex
+        #[AutowireIterator('baks.elastic.index')] iterable $elasticIndex
     )
     {
         parent::__construct();
