@@ -27,6 +27,7 @@ namespace BaksDev\Elastic\Api\Index;
 
 use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
+use Exception;
 use ReflectionAttribute;
 use ReflectionClass;
 use Symfony\Component\HttpClient\Exception\ClientException;
@@ -67,18 +68,18 @@ final class ElasticGetIndex extends ElasticClient
 
         try
         {
-            $request = $this->request('GET',
+            $request = $this->request(
+                'GET',
                 '/'.$index.'/_search',
                 ['json' => $searchData]
             );
+
+            $response = $request->toArray(false);
         }
-        catch(TransportException)
+        catch(Exception)
         {
             return false;
         }
-
-        $response = $request->toArray(false);
-
 
         if($request->getStatusCode() !== 200)
         {
