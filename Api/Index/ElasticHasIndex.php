@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Index;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 
 final class ElasticHasIndex extends ElasticClient
@@ -32,6 +33,11 @@ final class ElasticHasIndex extends ElasticClient
 
     public function handle(string $index): bool|array
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return false;
+        }
+
         $request = $this->request('GET', '/'.$index.'/_search');
 
         $response = $request->toArray(false);

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Index;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
 use ReflectionAttribute;
@@ -34,6 +35,11 @@ final class ElasticDeleteIndex extends ElasticClient
 {
     public function handle(string $index): bool
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return false;
+        }
+
         /**  Если передан класс сущности - определяем её таблицу */
         if(class_exists($index))
         {

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Index;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
 use InvalidArgumentException;
@@ -35,6 +36,11 @@ final class ElasticSetIndex extends ElasticClient
 {
     public function handle(string $index, array $data): bool
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return false;
+        }
+
         if(empty($data))
         {
             return false;

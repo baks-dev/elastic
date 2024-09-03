@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Index;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 use Doctrine\ORM\Mapping\Table;
 use Exception;
@@ -39,7 +40,7 @@ final class ElasticGetIndex extends ElasticClient
     {
         //$search = 'ши зимн PL720 Triangle нешипованн';
 
-        if(empty($search))
+        if(empty($search) || Kernel::isTestEnvironment())
         {
             return false;
         }

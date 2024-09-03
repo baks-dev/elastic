@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Mappings;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 use BaksDev\Elastic\Api\Properties\ElasticTypeInterface;
 use BaksDev\Elastic\Api\Properties\IntegerElasticType;
@@ -60,6 +61,11 @@ final class ElasticSetMap extends ElasticClient
 
     public function handle(string $index): bool
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return true;
+        }
+
         if($this->properties === null || $this->properties->isEmpty())
         {
             throw new InvalidArgumentException('');
@@ -87,8 +93,8 @@ final class ElasticSetMap extends ElasticClient
             {
                 if(
                     isset($indexExists[$property->getKey()]) &&
-                    $indexExists[$property->getKey()]['type'] === $property->getType())
-                {
+                    $indexExists[$property->getKey()]['type'] === $property->getType()
+                ) {
                     $this->properties->removeElement($property);
                 }
             }

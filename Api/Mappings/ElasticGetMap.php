@@ -32,6 +32,10 @@ final class ElasticGetMap extends ElasticClient
 {
     public function handle(string $index): bool|array
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return false;
+        }
 
         $request = $this->request('GET', '/'.$index.'/_mapping');
 

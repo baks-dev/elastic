@@ -25,15 +25,22 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api\Index;
 
+use App\Kernel;
 use BaksDev\Elastic\Api\ElasticClient;
 
 final class ElasticDeleteByQueryIndex extends ElasticClient
 {
     public function handle(string $index, array $query): bool
     {
+        if(Kernel::isTestEnvironment())
+        {
+            return false;
+        }
+
         $queryData['query']['match'] = $query;
 
-        $request = $this->request('POST',
+        $request = $this->request(
+            'POST',
             '/'.$index.'/_delete_by_query',
             ['json' => $queryData]
         );
