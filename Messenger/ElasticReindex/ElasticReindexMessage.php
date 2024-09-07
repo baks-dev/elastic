@@ -25,7 +25,4 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Messenger\ElasticReindex;
 
-final class ElasticReindexMessage
-{
-
-}
+final class ElasticReindexMessage {}

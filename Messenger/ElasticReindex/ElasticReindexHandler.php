@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Elastic\Messenger\ElasticReindex;
 
 use BaksDev\Core\Cache\AppCacheInterface;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Elastic\Api\Index\ElasticDeleteIndex;
 use BaksDev\Elastic\Api\Index\ElasticSetIndex;
 use BaksDev\Elastic\Api\Mappings\ElasticSetMap;
@@ -41,47 +42,31 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class ElasticReindexHandler
 {
-    private iterable $elasticIndex;
-    private ElasticSetMap $elasticSetMap;
-    private ElasticSetIndex $elasticSetIndex;
-    private ElasticDeleteIndex $elasticDeleteIndex;
     private LoggerInterface $logger;
-    private AppCacheInterface $cache;
 
     public function __construct(
+        #[AutowireIterator('baks.elastic.index')] private readonly iterable $elasticIndex,
+        private readonly ElasticSetMap $elasticSetMap,
+        private readonly ElasticSetIndex $elasticSetIndex,
+        private readonly ElasticDeleteIndex $elasticDeleteIndex,
+        private readonly DeduplicatorInterface $deduplicator,
         LoggerInterface $elasticLogger,
-        ElasticSetMap $elasticSetMap,
-        ElasticSetIndex $elasticSetIndex,
-        ElasticDeleteIndex $elasticDeleteIndex,
-        AppCacheInterface $cache,
-        #[AutowireIterator('baks.elastic.index')] iterable $elasticIndex
-    )
-    {
-        $this->elasticIndex = $elasticIndex;
-        $this->elasticSetMap = $elasticSetMap;
-        $this->elasticSetIndex = $elasticSetIndex;
-        $this->elasticDeleteIndex = $elasticDeleteIndex;
+    ) {
         $this->logger = $elasticLogger;
-        $this->cache = $cache;
     }
 
     public function __invoke(ElasticReindexMessage $message): void
     {
-        /**
-         * Делаем проверку, нет ли запущенных процессов переиндексации
-         */
-        $cache = $this->cache->init('elastic');
-        $item = $cache->getItem('reindex');
+        $Deduplicator = $this->deduplicator
+            ->namespace('elastic')
+            ->deduplication('reindex');
 
-        if($item->isHit())
+        if($Deduplicator->isExecuted())
         {
             return;
         }
 
-        $item->set(true);
-        $item->expiresAfter(DateInterval::createFromDateString('5 minutes'));
-        $cache->save($item);
-
+        $Deduplicator->save();
 
         /** Запускаем переиндексацию */
         /** @var ElasticIndexInterface $index */
@@ -106,16 +91,18 @@ final class ElasticReindexHandler
 
                 foreach($index->getData() as $id => $text)
                 {
-                    $this->elasticSetIndex->handle($index->getIndex(),
+                    $this->elasticSetIndex->handle(
+                        $index->getIndex(),
                         [
                             'id' => $id,
                             'text' => $this->filterText($text)
-                        ]);
+                        ]
+                    );
                 }
             }
         }
 
-        $cache->deleteItem('reindex');
+        $Deduplicator->delete();
     }
 
     /**
