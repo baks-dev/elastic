@@ -29,7 +29,7 @@ final class ElasticIndex implements ElasticIndexInterface
 {
     public function getIndex(): string
     {
-       return '';
+        return '';
     }
 
     public function getData(): array

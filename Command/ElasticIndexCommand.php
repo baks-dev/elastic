@@ -11,7 +11,6 @@
 
 namespace BaksDev\Elastic\Command;
 
-
 use BaksDev\Elastic\Api\Index\ElasticDeleteIndex;
 use BaksDev\Elastic\Api\Index\ElasticSetIndex;
 use BaksDev\Elastic\Api\Mappings\ElasticSetMap;
@@ -29,7 +28,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 #[AsCommand(
     name: 'baks:elastic:index',
-    description: 'Добавляет в поиск индексы')
+    description: 'Добавляет в поиск индексы',
+)
 ]
 class ElasticIndexCommand extends Command
 {
@@ -42,9 +42,8 @@ class ElasticIndexCommand extends Command
         ElasticSetMap $elasticSetMap,
         ElasticSetIndex $elasticSetIndex,
         ElasticDeleteIndex $elasticDeleteIndex,
-        #[AutowireIterator('baks.elastic.index')] iterable $elasticIndex
-    )
-    {
+        #[AutowireIterator('baks.elastic.index')] iterable $elasticIndex,
+    ) {
         parent::__construct();
 
         $this->elasticIndex = $elasticIndex;
@@ -64,10 +63,15 @@ class ElasticIndexCommand extends Command
         /** @var ElasticIndexInterface $index */
         foreach($this->elasticIndex as $index)
         {
+
+
+
             if(empty($index->getIndex()) || empty($index->getData()))
             {
                 continue;
             }
+
+
 
             try
             {
@@ -94,6 +98,10 @@ class ElasticIndexCommand extends Command
                 ->addProperty($id)
                 ->addProperty($text)
                 ->handle($index->getIndex());
+
+
+
+
 
             foreach($index->getData() as $id => $text)
             {

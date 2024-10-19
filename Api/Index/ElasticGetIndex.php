@@ -72,7 +72,7 @@ final class ElasticGetIndex extends ElasticClient
             $request = $this->request(
                 'GET',
                 '/'.$index.'/_search',
-                ['json' => $searchData]
+                ['json' => $searchData],
             );
 
             $response = $request->toArray(false);

@@ -25,8 +25,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Elastic\BaksDevElasticBundle;
 
-return static function (ContainerConfigurator $configurator) {
-
+return static function (ContainerConfigurator $configurator)
+{
     $services = $configurator->services()
         ->defaults()
         ->autowire()
@@ -42,6 +42,5 @@ return static function (ContainerConfigurator $configurator) {
             $PATH.'**'.DIRECTORY_SEPARATOR.'*DTO.php',
             $PATH.'**'.DIRECTORY_SEPARATOR.'*Test.php',
         ]);
-
 
 };
