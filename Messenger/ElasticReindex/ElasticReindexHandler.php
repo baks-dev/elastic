@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Messenger\ElasticReindex;
 
-use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Elastic\Api\Index\ElasticDeleteIndex;
 use BaksDev\Elastic\Api\Index\ElasticSetIndex;
@@ -58,6 +57,7 @@ final class ElasticReindexHandler
     public function __invoke(ElasticReindexMessage $message): void
     {
         $Deduplicator = $this->deduplicator
+            ->expiresAfter('5 minutes')
             ->namespace('elastic')
             ->deduplication('reindex');
 
