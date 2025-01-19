@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace BaksDev\Elastic\Api\Index\Tests;
 
 use BaksDev\Elastic\Api\Index\ElasticGetIndex;
-use BaksDev\Wildberries\Api\Token\Card\WildberriesCards\WildberriesCards;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
