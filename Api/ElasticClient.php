@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,43 +25,21 @@ declare(strict_types=1);
 
 namespace BaksDev\Elastic\Api;
 
-use BaksDev\Core\Cache\AppCacheInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Repository\WbTokenByProfile\WbTokenByProfileInterface;
-use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\RetryableHttpClient;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 abstract class ElasticClient
 {
-    private string $host;
-    private string $port;
-    private string $pass;
-    private string $cert;
-
-    protected LoggerInterface $logger;
-
     public function __construct(
-        #[Autowire(env: 'ELASTIC_HOST')] string $host,
-        #[Autowire(env: 'ELASTIC_PORT')] string $port,
-        #[Autowire(env: 'ELASTIC_PASSWORD')] string $pass,
-        #[Autowire(env: 'ELASTIC_CERT')] string $cert,
+        #[Autowire(env: 'ELASTIC_HOST')] private readonly string $host,
+        #[Autowire(env: 'ELASTIC_PORT')] private readonly string $port,
+        #[Autowire(env: 'ELASTIC_PASSWORD')] private readonly string $pass,
+        #[Target('elasticLogger')] private readonly LoggerInterface $logger
 
-        LoggerInterface $elasticLogger
-    )
-    {
-        $this->host = $host;
-        $this->port = $port;
-        $this->pass = $pass;
-        $this->cert = $cert;
-
-        $this->logger = $elasticLogger;
-    }
+    ) {}
 
     protected function request(string $method, string $url, array $options = []): ResponseInterface
     {
@@ -71,7 +49,6 @@ abstract class ElasticClient
         $HttpClient = HttpClient::create(['headers' => $headers])->withOptions([
             'base_uri' => 'https://'.$this->host.':'.$this->port,
             'auth_basic' => ['elastic', $this->pass],
-            //'cafile' => $this->cert
             'verify_host' => false,
             'verify_peer' => false
 

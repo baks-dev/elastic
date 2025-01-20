@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -35,24 +35,20 @@ use BaksDev\Elastic\Index\ElasticIndexInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 final class ElasticReindexHandler
 {
-    private LoggerInterface $logger;
-
     public function __construct(
         #[AutowireIterator('baks.elastic.index')] private readonly iterable $elasticIndex,
+        #[Target('elasticLogger')] private readonly LoggerInterface $logger,
         private readonly ElasticSetMap $elasticSetMap,
         private readonly ElasticSetIndex $elasticSetIndex,
         private readonly ElasticDeleteIndex $elasticDeleteIndex,
         private readonly DeduplicatorInterface $deduplicator,
-        LoggerInterface $elasticLogger,
-    )
-    {
-        $this->logger = $elasticLogger;
-    }
+    ) {}
 
     public function __invoke(ElasticReindexMessage $message): void
     {
