@@ -37,7 +37,7 @@ abstract class ElasticClient
         #[Autowire(env: 'ELASTIC_HOST')] private readonly string $host,
         #[Autowire(env: 'ELASTIC_PORT')] private readonly string $port,
         #[Autowire(env: 'ELASTIC_PASSWORD')] private readonly string $pass,
-        #[Target('elasticLogger')] private readonly LoggerInterface $logger
+        #[Target('elasticLogger')] protected readonly LoggerInterface $logger
 
     ) {}
 
